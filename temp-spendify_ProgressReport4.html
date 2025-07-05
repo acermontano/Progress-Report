@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spendify: Budget Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      transition: background-color 0.3s;
+    }
+
+    .dashboard-header {
+      background-color: #1DB954;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      border-bottom: 3px solid #18a34c;
+      position: relative;
+    }
+
+    .logo-area h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    .user-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .icon-button {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.2s ease;
+    }
+
+    .icon-button:hover {
+      transform: scale(1.2);
+    }
+
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+
+    main {
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    section {
+      margin-bottom: 40px;
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0, 255, 0, 0.15);
+    }
+
+    #balance-amount {
+      font-size: 2.5em;
+      color: #1DB954;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    #pie-chart-placeholder {
+      height: 300px;
+    }
+
+    form input, form select, form button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background-color: #333;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1em;
+    }
+
+    form button {
+      background-color: #1DB954;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    form button:hover {
+      background-color: #18a34c;
+      box-shadow: 0 0 12px rgba(0,255,0,0.4);
+    }
+
+    ul#transaction-list, #achievement-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    ul#transaction-list li, #achievement-list li {
+      background-color: #2a2a2a;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-left: 5px solid #1DB954;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: #1e1e1e;
+      font-size: 0.9em;
+      color: #aaa;
+      border-top: 1px solid #333;
+    }
+
+    /* New styles for settings dropdown */
+    .settings-dropdown {
+      position: absolute;
+      top: 60px;
+      right: 30px;
+      background-color: #2a2a2a;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+      display: none;
+      z-index: 999;
+      padding: 15px;
+      width: 250px;
+    }
+
+    .settings-dropdown label {
+      font-weight: bold;
+    }
+
+    .alert {
+      background-color: #ffcc00;
+      color: #000;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .payment-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-option img {
+      width: 30px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <h1>💸 Spendify</h1>
+      <p>A Simple Web-Based Budget Tracker</p>
+    </div>
+    <div class="user-controls">
+      <button class="icon-button" id="notificationButton">🔔</button>
+      <button class="icon-button" id="settingsButton">⚙️</button>
+      <div class="profile">
+        <img src="https://i.pravatar.cc/40" alt="User  Profile" />
+      </div>
+      <div class="settings-dropdown" id="settingsDropdown">
+        <label for="theme">Choose Theme:</label>
+        <select id="theme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+        <label for="currency">Select Currency:</label>
+        <select id="currency">
+          <option value="PHP">PHP</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <label for="spending-limit">Set Spending Limit:</label>
+        <input type="number" id="spending-limit" placeholder="Amount" />
+        <button id="set-limit">Set Limit</button>
+        <div class="alert" id="alert-settings" style="display: none;">
+          Alerts for billing dates and spending limits will be set.
+        </div>
+        <button id="set-alerts">Set Alerts</button>
+        <h4>Recurring Payments</h4>
+        <input type="text" id="recurring-description" placeholder="Description" />
+        <input type="number" id="recurring-amount" placeholder="Amount" />
+        <button id="add-recurring">Add Recurring Payment</button>
+        <ul id="recurring-list"></ul>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="balance">
+      <h2>Current Balance:</h2>
+      <p id="balance-amount">PHP 0.00</p>
+    </section>
+
+    <section id="chart">
+      <h3>Spending Breakdown</h3>
+      <div id="pie-chart-placeholder">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </section>
+
+    <section id="add-transaction">
+      <h3>Add New Transaction</h3>
+      <form id="transaction-form">
+        <input type="text" id="description" placeholder="Description" required />
+        <input type="number" id="amount" placeholder="Amount" required />
+        <select id="category" required>
+          <option value="">Select Category</option>
+          <option value="food">🍔 Food</option>
+          <option value="transport">🚗 Transport</option>
+          <option value="entertainment">🎮 Entertainment</option>
+          <option value="savings">💰 Savings</option>
+        </select>
+        <button type="submit">Add Transaction</button>
+      </form>
+    </section>
+
+    <section id="transactions">
+      <h3>Transaction History</h3>
+      <ul id="transaction-list">
+        <li>No transactions yet.</li>
+      </ul>
+    </section>
+
+    <section id="achievements">
+      <h3>Achievements</h3>
+      <ul id="achievement-list">
+        <li>🔓 First Transaction Logged: Locked</li>
+        <li>🔓 First Budget Limit Set: Locked</li>
+        <li>🔓 First Subscription Purchased: Locked</li>
+        <li>🔓 First Savings Recorded: Locked</li>
+        <li>🔄 Added a Recurring Payment: Locked</li>
+        <li>🔥 3 Days of Spending Logs in a Row: Locked</li>
+        <li>🔥🔥 7-Day Spending Streak: Locked</li>
+        <li>🌟 30-Day Consistent Logging: Locked</li>
+        <li>📂 Logged 10 Transactions: Locked</li>
+        <li>📚 Logged 50 Transactions: Locked</li>
+        <li>💸 Spent Over ₱1,000 Total: Locked</li>
+        <li>🏆 Saved Over ₱5,000: Locked</li>
+        <li>🧠 Stayed Under Budget for 1 Week: Locked</li>
+        <li>👑 Stayed Under Budget for 1 Month: Locked</li>
+        <li>📊 Tracked All Categories for a Month: Locked</li>
+        <li>😬 Overspent in All Categories in 1 Month: Locked</li>
+        <li>🎲 Set a Spending Limit of Exactly ₱1,234: Locked</li>
+        <li>🐼 Subscribed Using GCash: Locked</li>
+        <li>🌙 Logged a Transaction at 3:00 AM: Locked</li>
+        <li>🔁 Added 3+ Recurring Payments: Locked</li>
+        <li>⏰ Auto-Paid a Bill On Time 5 Times: Locked</li>
+      </ul>
+    </section>
+
+    <section id="monthly-comparison">
+      <h3>Monthly Spending Comparison</h3>
+      <canvas id="monthlyChart" height="200"></canvas>
+    </section>
+
+    <section id="subscription">
+      <h3>Subscription Plan</h3>
+      <label for="plan">Choose a plan:</label>
+      <select id="plan">
+        <option value="1">1 Month - ₱269</option>
+        <option value="6">6 Months - ₱1,299 (₱315 Discount)</option>
+        <option value="12">1 Year - ₱2,499 (₱729 Discount)</option>
+      </select>
+      <button id="subscribe-button">Subscribe</button>
+      <p>Status: <span id="subscription-status">Not Subscribed</span></p>
+      <div class="payment-options" id="payment-options" style="display: none;">
+        <h4>Select Payment Method:</h4>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="visa" id="visa">
+          <label for="visa"><img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa"> Visa</label>
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="mastercard" id="mastercard">
+          <label for="mastercard"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/MasterCard_Logo.png" alt="MasterCard"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="gcash" id="gcash">
+          <label for="gcash"><img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fbrandfetch.com%2Fgcash.com&psig=AOvVaw0Hsgp1spa3Ey73g9eUKK5v&ust=1751806731151000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCk1uDipY4DFQAAAAAdAAAAABAL" alt="GCash"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="paymaya" id="paymaya">
+          <label for="paymaya"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/PayMaya_Logo.png" alt="PayMaya"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="applepay" id="applepay">
+          <label for="applepay"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Apple_Pay_logo.png" alt="Apple Pay"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="711" id="711">
+          <label for="711">7/11</label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Spendify &copy; 2025 | Built with HTML, CSS & JS</p>
+  </footer>
+
+  <script>
+    const transactionForm = document.getElementById('transaction-form');
+    const transactionList = document.getElementById('transaction-list');
+    const balanceAmount = document.getElementById('balance-amount');
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    const themeSelect = document.getElementById('theme');
+    const currencySelect = document.getElementById('currency');
+    const alertSettings = document.getElementById('alert-settings');
+    const setAlertsButton = document.getElementById('set-alerts');
+    const setLimitButton = document.getElementById('set-limit');
+    const subscribeBtn = document.getElementById('subscribe-button');
+    const subscriptionStatus = document.getElementById('subscription-status');
+    const paymentOptions = document.getElementById('payment-options');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    const settingsButton = document.getElementById('settingsButton');
+    const recurringDescription = document.getElementById('recurring-description');
+    const recurringAmount = document.getElementById('recurring-amount');
+    const recurringList = document.getElementById('recurring-list');
+
+    let totalBalance = 0;
+    let transactionCount = 0;
+    const categoryTotals = { food: 0, transport: 0, entertainment: 0, savings: 0 };
+    const monthlySpending = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // Monthly spending for each month
+    let spendingLimit = 0;
+
+    const pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['🍔 Food', '🚗 Transport', '🎮 Entertainment', '💰 Savings'],
+        datasets: [{
+          data: [0, 0, 0, 0],
+          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: 'white' } } }
+      }
+    });
+
+    const monthlyChart = new Chart(monthlyCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Monthly Spending',
+          data: monthlySpending,
+          backgroundColor: '#1DB954',
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    transactionForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const desc = document.getElementById('description').value;
+      const amt = parseFloat(document.getElementById('amount').value);
+      const cat = document.getElementById('category').value;
+
+      if (!desc || !amt || !cat) return;
+
+      categoryTotals[cat] += amt;
+      totalBalance -= amt;
+      balanceAmount.textContent = `${currencySelect.value} ${totalBalance.toFixed(2)}`;
+
+      const li = document.createElement('li');
+      li.textContent = `${desc} - ${currencySelect.value} ${amt.toFixed(2)} (${cat})`;
+      if (transactionList.children[0].textContent === "No transactions yet.") transactionList.innerHTML = '';
+      transactionList.appendChild(li);
+
+      pieChart.data.datasets[0].data = [
+        categoryTotals.food, categoryTotals.transport, categoryTotals.entertainment, categoryTotals.savings
+      ];
+      pieChart.update();
+
+      transactionCount++;
+      updateAchievements();
+      updateMonthlySpending(amt);
+      transactionForm.reset();
+    });
+
+    function updateAchievements() {
+      const achievementList = document.getElementById('achievement-list');
+      const achievements = [
+        { condition: transactionCount >= 1, text: "🔓 First Transaction: Unlocked!" },
+        { condition: transactionCount >= 5, text: "🏅 5 Transactions Logged: Unlocked!" },
+        { condition: totalBalance <= -1000, text: "💰 ₱1,000+ Total Spending: Unlocked!" }
+      ];
+      achievementList.innerHTML = '';
+      achievements.forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a.condition ? a.text : a.text.replace('Unlocked!', 'Locked');
+        achievementList.appendChild(li);
+      });
+    }
+
+    function updateMonthlySpending(amount) {
+      const currentMonth = new Date().getMonth();
+      monthlySpending[currentMonth] += amount;
+      monthlyChart.data.datasets[0].data = monthlySpending;
+      monthlyChart.update();
+    }
+
+    themeSelect.addEventListener('change', function() {
+      if (this.value === 'light') {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#000000';
+      } else {
+        document.body.style.backgroundColor = '#121212';
+        document.body.style.color = '#ffffff';
+      }
+    });
+
+    setAlertsButton.addEventListener('click', function() {
+      alertSettings.style.display = 'block';
+    });
+
+    setLimitButton.addEventListener('click', function() {
+      spendingLimit = parseFloat(document.getElementById('spending-limit').value);
+      alert(`Spending limit set to ${currencySelect.value} ${spendingLimit}`);
+    });
+
+    subscribeBtn.addEventListener('click', () => {
+      const plan = document.getElementById('plan').value;
+      let price = 0;
+      if (plan === "1") price = 269;
+      else if (plan === "6") price = 1299;
+      else if (plan === "12") price = 2499;
+
+      subscriptionStatus.textContent = `Subscribed for ${plan} Month(s) - ${currencySelect.value} ${price}`;
+      paymentOptions.style.display = 'block'; // Show payment options after subscription
+    });
+
+    // Toggle settings dropdown
+    settingsButton.addEventListener('click', () => {
+      settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close settings dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+      if (!settingsButton.contains(event.target) && !settingsDropdown.contains(event.target)) {
+        settingsDropdown.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
