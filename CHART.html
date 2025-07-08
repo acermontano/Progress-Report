@@ -4,41 +4,92 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Spendify: Budget Tracker</title>
-  <link rel=" stylesheet" href="spendi.css">
+  <link rel=" stylesheet" href="spendi .css">
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<main>
 
+   <a href="SPENDIFYpage.html" class="home-button">HOME</a>
+
+     <!-- spending comparison-->
+     <section id="monthly-comparison">
+      <h3>Monthly Spending Comparison</h3>
+      <canvas id="monthlyChart" height="150"></canvas> </section>
 <!-- Chart Placeholder -->
     <section id="chart">
       <h3>Spending Breakdown</h3>
-      <div id="pie-chart-placeholder">[Pie Chart]</div>
+      <div id="pie-chart-placeholder">
+        <canvas id="myPieChart"></canvas>
+      </div>
     </section>
 
-    <!-- Add Transaction Form -->
-    <section id="add-transaction">
-      <h3>Add New Transaction</h3>
-      <form id="transaction-form">
-        <input type="text" id="description" placeholder="Description" required />
-        <input type="number" id="amount" placeholder="Amount" required />
-        <select id="category" required>
-          <option value="">Select Category</option>
-          <option value="food">🍔 Food</option>
-          <option value="transport">🚗 Transport</option>
-          <option value="entertainment">🎮 Entertainment</option>
-          <option value="savings">💰 Savings</option>
-        </select>
-        <button type="submit">Add Transaction</button>
-      </form>
-    </section>
+   
 
-    <!-- Transaction List -->
-    <section id="transactions">
+    <!-- Transaction History -->
+    <section id="transaction-history">
       <h3>Transaction History</h3>
+      <div class="filter-controls">
+        <label for="filter-category">Filter by Category:</label>
+        <select id="filter-category">
+          <option value="all">All</option>
+          <option value="food">Food</option>
+          <option value="transport">Transport</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="housing">Housing</option>
+          <option value="utilities">Utilities</option>
+          <option value="shopping">Shopping</option>
+          <option value="salary">Salary</option>
+          <option value="health">Health</option>
+          <option value="education">Education</option>
+          <option value="personal">Personal</option>
+          <option value="others">Others</option>
+        </select>
+        <label for="filter-type">Filter by Type:</label>
+        <select id="filter-type">
+          <option value="all">All</option>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+      </div>
       <ul id="transaction-list">
-        <li>No transactions yet.</li>
+        <!-- Transactions will be added here -->
+      </ul>
+    </section>
+     
+        <!-- Achievements Section -->
+    <section id="achievements">
+      <div class="achievements-header">
+        <h3>🏆 Achievements</h3>
+        <button id="toggle-achievements" class="dropdown-button">Show/Hide Achievements</button>
+      </div>
+      <ul id="achievement-list" class="hidden">
+        <li>🔓 First Transaction Logged: Locked</li>
+        <li>🔓 First Budget Limit Set: Locked</li>
+        <li>🔓 First Subscription Purchased: Locked</li>
+        <li>🔓 First Savings Recorded: Locked</li>
+        <li>🔄 Added a Recurring Payment: Locked</li>
+        <li>🔥 3 Days of Spending Logs in a Row: Locked</li>
+        <li>🔥🔥 7-Day Spending Streak: Locked</li>
+        <li>🌟 30-Day Consistent Logging: Locked</li>
+        <li>📂 Logged 10 Transactions: Locked</li>
+        <li>📚 Logged 50 Transactions: Locked</li>
+        <li>💸 Spent Over ₱1,000 Total: Locked</li>
+        <li>🏆 Saved Over ₱5,000: Locked</li>
+        <li>🧠 Stayed Under Budget for 1 Week: Locked</li>
+        <li>👑 Stayed Under Budget for 1 Month: Locked</li>
+        <li>📊 Tracked All Categories for a Month: Locked</li>
+        <li>😬 Overspent in All Categories in 1 Month: Locked</li>
+        <li>🎲 Set a Spending Limit of Exactly ₱1,234: Locked</li>
+        <li>🐼 Subscribed Using GCash: Locked</li>
+        <li>🌙 Logged a Transaction at 3:00 AM: Locked</li>
+        <li>🔁 Added 3+ Recurring Payments: Locked</li>
+        <li>⏰ Auto-Paid a Bill On Time 5 Times: Locked</li>
       </ul>
     </section>
   </main>
+ 
 
   <footer>
     <p>Spendify &copy; 2025 | Built with HTML, CSS & JS</p>

@@ -5,37 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Spendify: Budget Tracker</title>
   <link rel=" stylesheet" href="spendi .css">
+  <script src="script.js"></script>
 </head>
 <body>
-  <header>
-    <h1>💸 Spendify</h1>
-    <p>A Simple Web-Based Budget Tracker</p>
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <h1>💸 Spendify</h1> 
+      <p>A Simple Web-Based Budget Tracker</p>
+    </div>
+    <div class="user-controls">
+      <button class="icon-button" id="notificationButton">🔔</button>
+      <button class="icon-button" id="settingsButton">⚙️</button>
+      <div class="profile">
+        <img src="https://i.pravatar.cc/40" alt="User  Profile" />
+      </div>
+      <div class="settings-dropdown" id="settingsDropdown">
+        <label for="theme">Choose Theme:</label>
+        <select id="theme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+        <label for="currency">Select Currency:</label>
+        <select id="currency">
+          <option value="PHP">PHP</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <label for="spending-limit">Set Spending Limit:</label>
+        <input type="number" id="spending-limit" placeholder="Amount" />
+        <button id="set-limit">Set Limit</button>
+        <div class="alert" id="alert-settings" style="display: none;">
+          Alerts for billing dates and spending limits will be set.
+        </div>
+        <button id="set-alerts">Set Alerts</button>
+        <h4>Recurring Payments</h4>
+        <input type="text" id="recurring-description" placeholder="Description" />
+        <input type="number" id="recurring-amount" placeholder="Amount" />
+        <button id="add-recurring">Add Recurring Payment</button>
+        <ul id="recurring-list"></ul>
+      </div>
+    </div>
   </header>
 
-  <script src="script.js"></script>
+  
 
   <main>
-    <!-- Monthly Income -->
-    <section id="income">
-      <h2>Monthly Income:</h2>
-      <input type="number" id="income-input" placeholder="Enter Monthly Income (PHP)">
+   
+      <!-- Monthly Income Section -->
+    <section id="income-section">
+      <h3>Set Monthly Income</h3>
+      <input type="number" id="income-input" placeholder="Enter your income" />
       <button id="set-income-btn">Set Income</button>
-     </section> 
-
-    <!-- Balance Section -->
-     <section id="balance">
-      <h2>Current Balance:</h2>
       <p id="balance-amount">PHP 0.00</p>
     </section>
 
-
-    <!-- Chart Placeholder -->
-    <section id="chart">
-      <h3>Spending Breakdown</h3>
-      <div id="pie-chart-placeholder">[Pie Chart]</div>
+      <!-- Budget Section -->
+    <section id="budget-section">
+      <h3>Set Monthly Budget</h3>
+      <input type="number" id="budget-input" placeholder="Enter your budget" />
+      <button id="set-budget-btn">Set Budget</button>
+      <p>Current Budget: PHP <span id="current-budget">0.00</span></p>
+      
     </section>
 
-    <!-- Add Transaction Form -->
+
+    <!-- Balance Section -->
+     <section id="balance">
+      <h2>Remaining Balance:</h2>
+      <p id="balance-amount">PHP <span id="remaining-budget">0.00</span></p>
+    </section>
+    
+      <!-- Add Transaction Form -->
     <section id="add-transaction">
       <h3>Add New Transaction</h3>
       <form id="transaction-form">
@@ -46,19 +86,66 @@
           <option value="food">🍔 Food</option>
           <option value="transport">🚗 Transport</option>
           <option value="entertainment">🎮 Entertainment</option>
-          <option value="savings">💰 Savings</option>
+          <option value="housing">🏠 Housing</option>
+          <option value="utilities">💡 Utilities</option>
+          <option value="shopping">🛍️ Shopping</option>
+          <option value="salary">💰 Salary</option>
+          <option value="health">🏥 Health</option>
+          <option value="education">📚 Education</option>
+          <option value="personal">👤 Personal</option>
+          <option value="others">✨ Others</option>
+        </select>
+        <select id="transaction-type" required>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
         </select>
         <button type="submit">Add Transaction</button>
+        <div id="message-display" class="message-box" style="display: none;"></div>
       </form>
     </section>
 
-    <!-- Transaction List -->
-    <section id="transactions">
-      <h3>Transaction History</h3>
-      <ul id="transaction-list">
-        <li>No transactions yet.</li>
-      </ul>
+<!-- subscription -->
+        <section id="subscription">
+      <h3>Subscription Plan</h3>
+      <label for="plan">Choose a plan:</label>
+      <select id="plan">
+        <option value="1">1 Month - ₱269</option>
+        <option value="6">6 Months - ₱1,299 (₱315 Discount)</option>
+        <option value="12">1 Year - ₱2,499 (₱729 Discount)</option>
+      </select>
+      <button id="subscribe-button">Subscribe</button>
+      <p>Status: <span id="subscription-status">Not Subscribed</span></p>
+      <div class="payment-options" id="payment-options" style="display: none;">
+        <h4>Select Payment Method:</h4>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="visa" id="visa">
+          <label for="visa"><img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa"> Visa</label>
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="mastercard" id="mastercard">
+          <label for="mastercard"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/MasterCard_Logo.png" alt="MasterCard"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="gcash" id="gcash">
+          <label for="gcash"><img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fbrandfetch.com%2Fgcash.com&psig=AOvVaw0Hsgp1spa3Ey73g9eUKK5v&ust=1751806731151000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCk1uDipY4DFQAAAAAdAAAAABAL" alt="GCash"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="paymaya" id="paymaya">
+          <label for="paymaya"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/PayMaya_Logo.png" alt="PayMaya"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="applepay" id="applepay">
+          <label for="applepay"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Apple_Pay_logo.png" alt="Apple Pay"> 
+        </div>
+        <div class="payment-option">
+          <input type="radio" name="payment" value="711" id="711">
+          <label for="711">7/11</label>
+        </div>
+      </div>
     </section>
+    
+ <a href="CHART.html" class="spend-button">VIEW SPENDING BREAKDOWNS</a> 
+
   </main>
 
   <footer>

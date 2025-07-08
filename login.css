@@ -20,7 +20,7 @@
 
     .login-container h1 {
       margin-bottom: 20px;
-      color: #1DB954;
+      color: #ffffff;
     }
 
     .login-container input[type="text"],
@@ -52,6 +52,11 @@
 
     .login-container button:hover {
       background-color: #18a34c;
+    }
+    .login-container .links {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #bbb;
     }
 
     .login-container p {
